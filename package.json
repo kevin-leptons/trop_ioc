@@ -1,0 +1,30 @@
+{
+  "name": "@trop/ioc",
+  "version": "0.1.0",
+  "description": "Simple IOC container for Javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevin-leptons/trop_ioc.git"
+  },
+  "keywords": [
+    "js",
+    "ioc",
+    "di"
+  ],
+  "author": "Kevin Leptons",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kevin-leptons/trop_ioc/issues"
+  },
+  "homepage": "https://github.com/kevin-leptons/trop_ioc#readme",
+  "dependencies": {
+    "snake-case": "^3.0.4"
+  },
+  "devDependencies": {
+    "mocha": "^8.3.1"
+  }
+}
