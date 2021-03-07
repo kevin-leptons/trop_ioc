@@ -18,11 +18,15 @@ class Config {
             this[k] = data[k]
         }
     }
+
+    async open() {}
+    async close() {}
 }
 
 class Container {
     constructor(config, type_list) {
         this._service_map = new Map()
+        this._service_stack = []
         this._type_list = type_list
         this.set(config)
     }
@@ -39,7 +43,18 @@ class Container {
     }
 
     async close() {
+        for (;;) {
+            let service_name = this._service_stack.shift()
 
+            if (!service_name) {
+                break
+            }
+
+            let service = this.get(service_name)
+
+            await service.close()
+            this._service_map.delete(service_name)
+        }
     }
 
     get(service_name) {
@@ -60,6 +75,7 @@ class Container {
         }
 
         this._service_map.set(service_name, instance)
+        this._service_stack.unshift(service_name)
     }
 
     _validate_service_type(type) {

@@ -53,6 +53,8 @@ async function main() {
 
     // output: 25
     console.log(total)
+
+    await container.close()
 }
 
 main().catch(console.error)

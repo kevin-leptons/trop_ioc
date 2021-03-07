@@ -50,7 +50,7 @@ class ServiceE {
 }
 
 describe('new_container()', () => {
-    it('should initialize and run', async () => {
+    it('should initialize, run and dispose', async () => {
         let config = new ioc.Config({
             service_a_asset: 10,
             service_b_asset: 15
@@ -64,6 +64,11 @@ describe('new_container()', () => {
         let expect = config.service_a_asset + config.service_b_asset
 
         assert.strictEqual(actual, expect)
+
+        await container.close()
+
+        assert.strictEqual(container._service_stack.length, 0)
+        assert.strictEqual(container._service_map.size, 0)
     })
 
     it('should throw error not found', async() => {
