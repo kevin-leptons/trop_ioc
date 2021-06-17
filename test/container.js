@@ -55,10 +55,10 @@ describe('new_container()', () => {
             service_a_asset: 10,
             service_b_asset: 15
         })
-        let container = await ioc.new_container(config, [
-            ServiceA,
-            ServiceB
-        ])
+        let container = await ioc.new_container(config, {
+            'service_a': ServiceA,
+            'service_b': ServiceB
+        })
 
         let actual = container.get('service_b').plus_service_a_asset()
         let expect = config.service_a_asset + config.service_b_asset
@@ -78,32 +78,13 @@ describe('new_container()', () => {
 
         await assert.rejects(
             async () => {
-                await ioc.new_container(config, [
-                    ServiceC
-                ])
+                await ioc.new_container(config, {
+                    'service_c': ServiceC
+                })
             },
             {
                 name: 'Error',
                 message: 'Service not found: "service_x"'
-            }
-        )
-    })
-
-    it('should throw error conflict', async() => {
-        let config = new ioc.Config({
-            a: 1
-        })
-
-        await assert.rejects(
-            async () => {
-                await ioc.new_container(config, [
-                    ServiceA,
-                    ServiceA
-                ])
-            },
-            {
-                name: 'Error',
-                message: 'Service conflict: "service_a"'
             }
         )
     })
@@ -115,9 +96,9 @@ describe('new_container()', () => {
 
         await assert.rejects(
             async () => {
-                await ioc.new_container(config, [
-                    ServiceD
-                ])
+                await ioc.new_container(config, {
+                    'service_d': ServiceD
+                })
             },
             {
                 name: 'Error',
@@ -133,9 +114,9 @@ describe('new_container()', () => {
 
         await assert.rejects(
             async () => {
-                await ioc.new_container(config, [
-                    ServiceE
-                ])
+                await ioc.new_container(config, {
+                    'service_e': ServiceE
+                })
             },
             {
                 name: 'Error',

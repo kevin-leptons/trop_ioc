@@ -1,5 +1,3 @@
-const { snakeCase } = require('snake-case')
-
 class Config {
     // Input
     //  * data {Object}: Map by key-value.
@@ -24,21 +22,27 @@ class Config {
 }
 
 class Container {
-    constructor(config, type_list) {
+    // Input
+    //  * config {Config}
+    //  * type_map {Object}: Key is service's name, value is service's type.
+    constructor(config, type_map) {
         this._service_map = new Map()
         this._service_stack = []
-        this._type_list = type_list
-        this.set(config)
+        this._type_map = type_map
+        this.set('config', config)
     }
 
     async open() {
-        for (let type of this._type_list) {
+        let names = Object.keys(this._type_map)
+        let type_list = names.map(name => [name, this._type_map[name]])
+
+        for (let [name, type] of type_list) {
             this._validate_service_type(type)
 
             let instance = new type(this.get.bind(this))
 
             await instance.open()
-            this.set(instance)
+            this.set(name, instance)
         }
     }
 
@@ -67,15 +71,16 @@ class Container {
         return service
     }
 
-    set(instance) {
-        let service_name = snakeCase(instance.constructor.name)
-
-        if (this._service_map.has(service_name)) {
-            throw Error(`Service conflict: "${service_name}"`)
+    // Input
+    //  * name {String}: Name of service.
+    //  * instance {any}: Instance of service.
+    set(name, instance) {
+        if (this._service_map.has(name)) {
+            throw Error(`Service conflict: "${name}"`)
         }
 
-        this._service_map.set(service_name, instance)
-        this._service_stack.unshift(service_name)
+        this._service_map.set(name, instance)
+        this._service_stack.unshift(name)
     }
 
     _validate_service_type(type) {

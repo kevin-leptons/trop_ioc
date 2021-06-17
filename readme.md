@@ -44,10 +44,10 @@ async function main() {
         service_a_asset: 10,
         service_b_asset: 15
     })
-    let container = await ioc.new_container(config, [
-        ServiceA,
-        ServiceB
-    ])
+    let container = await ioc.new_container(config, {
+        'service_a': ServiceA,
+        'service_b': ServiceB
+    })
 
     let total = container.get('service_b').plus_service_a_asset()
 
