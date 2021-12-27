@@ -1,53 +1,32 @@
+'use strict'
+
 const assert = require('assert')
-const {Config} = require('../index')
+const {Config} = require('../lib')
 
 describe('Config', () => {
-    it('should copy attribute a, b', () => {
+    it('existed attribute, return value', () => {
         let data = {
-            a: 1,
-            b: 2
+            one: 1,
+            two: 'two'
         }
         let config = new Config(data)
 
-        assert.strictEqual(config.a, data.a)
-        assert.strictEqual(config.b, data.b)
+        assert.strictEqual(config.get('one'), data.one)
+        assert.strictEqual(config.get('two'), data.two)
     })
 
-    it('should copy attribute a, b, c, d', () => {
+    it('not existed attribute, throws error', () => {
         let data = {
-            a: 1,
-            b: 2,
-            c: 'xxx',
-            d: 'yyy'
+            one: 1,
+            two: 'two'
         }
         let config = new Config(data)
 
-        assert.strictEqual(config.a, data.a)
-        assert.strictEqual(config.b, data.b)
-        assert.strictEqual(config.c, data.c)
-        assert.strictEqual(config.d, data.d)
-    })
-
-    it('should throw invalid data error with no input', () => {
         assert.throws(
-            () => {
-                new Config()
-            },
+            () => config.get('foo_bar'),
             {
                 name: 'Error',
-                message: 'Invalid configuration data'
-            }
-        )
-    })
-
-    it('should throw empty error with no input', () => {
-        assert.throws(
-            () => {
-                new Config({})
-            },
-            {
-                name: 'Error',
-                message: 'Empty configuration data'
+                message: 'not existed configuration attribute: foo_bar'
             }
         )
     })

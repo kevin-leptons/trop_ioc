@@ -1,103 +1,70 @@
-@trop/ioc
-=========
+# @trop/ioc
 
-Simple IOC container for Javascript. It is not real IOC for now but it will, soon.
+* Inverse of Control for Javascript... in Stone Age.
 
-Usage
-=====
+# Installation
 
-To use service with container, it must be implement by specification
-in section `Service Interface`.
+```
+npm install @trop/ioc
+```
+
+# Example
 
 ```js
-const ioc = require('@trop/ioc')
+const {newContainer, Config} = require('@trop/ioc')
 
 class ServiceA {
     constructor(get) {
-        this._asset = get('config').service_a_asset
+        this._balance = get('config').get('service_a_balance')
     }
 
     async open() {}
+
     async close() {}
 
-    asset() {
-        return this._asset
+    balance() {
+        return this._balance
     }
 }
 
 class ServiceB {
     constructor(get) {
-        this._asset = get('config').service_b_asset
-        this._service_a = get('service_a')
+        this._balance = get('config').get('service_b_balance')
+        this._serviceA = get('service_a')
     }
 
-    async open() {}
-    async close() {}
+    open() {}
 
-    plus_service_a_asset() {
-        return this._service_a.asset() + this._asset
+    close() {}
+
+    plusServiceA() {
+        return this._serviceA.balance() + this._balance
     }
 }
 
+class ServiceC {
+    constructor() {}
+
+    doNothing() {}
+}
+
 async function main() {
-    let config = new ioc.Config({
-        service_a_asset: 10,
-        service_b_asset: 15
+    let config = new Config({
+        'service_a_balance': 10,
+        'service_b_balance': 15
     })
-    let container = await ioc.new_container(config, {
+    let container = await newContainer(config, {
         'service_a': ServiceA,
-        'service_b': ServiceB
+        'service_b': ServiceB,
+        'service_c': ServiceC
     })
 
-    let total = container.get('service_b').plus_service_a_asset()
+    let total = container.get('service_b').plusServiceA()
 
-    // output: 25
     console.log(total)
 
     await container.close()
 }
 
 main().catch(console.error)
-```
-
-Service Interface
-=================
-
-```js
-class ServiceA {
-    // Description
-    //  * Get all dependency services.
-    //
-    // Input
-    //  * get {Function(service_name)}: Retrieve dependency services.
-    //    "service_name" is camel case of class name of service.
-    //    Example: ServiceA => "service_a", ServiceABC_ => "service_abc"
-    constructor(get) {
-        this._service_x = get('service_x)
-        this._service_y = get('service_y)
-    }
-
-    // Description
-    //  * Initialize service that require asynchronous actions.
-    async open() {
-
-    }
-
-    // Description
-    //  * Release all resources which is manage by service like connections,
-    //    open files...
-    async close() {
-
-    }
-
-    // An API of service
-    method_a() {
-
-    }
-
-    // An other API of service and so on
-    method_b() {
-
-    }
-}
 ```
