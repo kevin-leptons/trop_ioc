@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/kevin-leptons/trop_ioc#readme",
   "dependencies": {
-    "snake-case": "^3.0.4"
   },
   "devDependencies": {
     "@trop/standard": "^0.8.0",
