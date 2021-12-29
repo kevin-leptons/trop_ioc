@@ -30,4 +30,48 @@ describe('Config', () => {
             }
         )
     })
+
+    it('existed attribute, value=false, return correct value', () => {
+        let data = {
+            foo: false
+        }
+        let expectedResult = false
+        let config = new Config(data)
+        let actualResult = config.get('foo')
+
+        assert.deepStrictEqual(actualResult, expectedResult)
+    })
+
+    it('existed attribute, value=0, return correct value', () => {
+        let data = {
+            foo: 0
+        }
+        let expectedResult = 0
+        let config = new Config(data)
+        let actualResult = config.get('foo')
+
+        assert.deepStrictEqual(actualResult, expectedResult)
+    })
+
+    it('existed attribute, value=undefined, return correct value', () => {
+        let data = {
+            foo: undefined
+        }
+        let expectedResult = undefined
+        let config = new Config(data)
+        let actualResult = config.get('foo')
+
+        assert.deepStrictEqual(actualResult, expectedResult)
+    })
+
+    it('existed attribute, value=null, return correct value', () => {
+        let data = {
+            foo: null
+        }
+        let expectedResult = null
+        let config = new Config(data)
+        let actualResult = config.get('foo')
+
+        assert.deepStrictEqual(actualResult, expectedResult)
+    })
 })
