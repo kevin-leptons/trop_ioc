@@ -8,6 +8,10 @@ class ServiceA {
         this._asset = get('config').get('service_a_asset')
     }
 
+    async _open() {
+        this._asset += 1
+    }
+
     asset() {
         return this._asset
     }
@@ -71,8 +75,7 @@ describe('newContainer', () => {
             'service_b': ServiceB
         })
         let actual = container.get('service_b').plus_service_a_asset()
-        let expect = config.get('service_a_asset') +
-            config.get('service_b_asset')
+        let expect = 26
 
         assert.strictEqual(actual, expect)
 
