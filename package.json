@@ -1,6 +1,6 @@
 {
   "name": "@trop/ioc",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Simple IOC container for Javascript",
   "engines": {
     "node": "14"
