@@ -1,175 +1,97 @@
 'use strict'
 
+/* eslint-disable max-lines-per-function */
+
 const assert = require('assert')
-const ioc = require('../lib')
+const {Container} = require('../lib')
+const {Config} = require('./_lib')
 
 class ServiceA {
-    constructor(get) {
-        this._asset = get('config').get('service_a_asset')
+    static get identity() {
+        return 'service.a'
     }
 
-    async _open() {
-        this._asset += 1
+    static get dependencies() {
+        return ['config']
     }
 
-    asset() {
-        return this._asset
+    /**
+     * @type {number}
+     */
+    get balance() {
+        return this._balance
+    }
+
+    constructor(balance) {
+        this._balance = balance
+    }
+
+    /**
+     *
+     * @param {Config} config
+     * @return {ServiceA}
+     */
+    static open(config) {
+        let balance = config.balanceA
+        return new ServiceA(balance)
+    }
+
+    close() {}
+
+    increasebalance() {
+        this._balance += 1
     }
 }
 
 class ServiceB {
-    constructor(get) {
-        this._asset = get('config').get('service_b_asset')
-        this._service_a = get('service_a')
+    static get identity() {
+        return 'service.b'
     }
 
-    plus_service_a_asset() {
-        return this._service_a.asset() + this._asset
+    static get dependencies() {
+        return ['config', 'service.a']
     }
-}
 
-class ServiceC {
-    constructor(get) {
-        this._service_x = get('service_x')
+    constructor(balance) {
+        this._balance = balance
     }
-}
 
-class ServiceD {
-    constructor() {}
-
-    get _open() {
-        return 1
+    /**
+     * @type {number}
+     */
+    get balance() {
+        return this._balance
     }
-}
 
-class ServiceE {
-    constructor() {}
-
-    get _close() {
-        return 1
+    /**
+     *
+     * @param {Config} config
+     * @param {ServiceA} serviceA
+     * @return {ServiceB}
+     */
+    static open(config, serviceA) {
+        serviceA.increasebalance()
+        let balance = config.balanceB + serviceA.balance
+        return new ServiceB(balance)
     }
-}
 
-class ServiceF {
-    // eslint-disable-next-line require-await
-    async _open() {
-        throw new Error('error from _open()')
-    }
-}
+    close() {}
 
-class ServiceG {
-    // eslint-disable-next-line require-await
-    async _close() {
-        throw new Error('error from _close()')
+    increasebalance() {
+        return this._balance += 1
     }
 }
 
-describe('newContainer', () => {
-    it('initialize, run and dispose', async () => {
-        let config = new ioc.Config({
-            service_a_asset: 10,
-            service_b_asset: 15
-        })
-        let container = await ioc.newContainer(config, {
-            'service_a': ServiceA,
-            'service_b': ServiceB
-        })
-        let actual = container.get('service_b').plus_service_a_asset()
-        let expect = 26
-
-        assert.strictEqual(actual, expect)
-
+describe('Container.open', () => {
+    it('initialize, run and dispose', async() => {
+        let config = Config.open(10, 15)
+        let container = await Container.open(config, [
+            ServiceA, ServiceB
+        ])
+        let actualResult = container.get('service.b').increasebalance()
+        let expectedResult = 27
+        assert.strictEqual(actualResult, expectedResult)
         await container.close()
-
-        assert.strictEqual(container._serviceStack.length, 0)
         assert.strictEqual(container._serviceMap.size, 0)
-    })
-
-    it('service does not existed, throws error', async() => {
-        let config = new ioc.Config({
-            a: 1
-        })
-
-        await assert.rejects(
-            async () => {
-                await ioc.newContainer(config, {
-                    'service_c': ServiceC
-                })
-            },
-            {
-                name: 'Error',
-                message: 'Service not found: service_x'
-            }
-        )
-    })
-
-    it('_open is existed but not a function, throws error', async() => {
-        let config = new ioc.Config({
-            a: 1
-        })
-
-        await assert.rejects(
-            async () => {
-                await ioc.newContainer(config, {
-                    'service_d': ServiceD
-                })
-            },
-            {
-                name: 'Error',
-                message: '_open is existed but not a function: ServiceD'
-            }
-        )
-    })
-
-    it('_close is existed but not a function, throw error', async() => {
-        let config = new ioc.Config({
-            a: 1
-        })
-
-        await assert.rejects(
-            async () => {
-                await ioc.newContainer(config, {
-                    'service_e': ServiceE
-                })
-            },
-            {
-                name: 'Error',
-                message: '_close is existed but not a function: ServiceE'
-            }
-        )
-    })
-
-    it('service throws error in _open(), throws error', async () => {
-        let config = new ioc.Config()
-
-        await assert.rejects(
-            async () => {
-                await ioc.newContainer(config, {
-                    'service_f': ServiceF
-                })
-            },
-            {
-                name: 'Error',
-                message: 'error from _open()'
-            }
-        )
-    })
-
-    it('service throws error in _close(), throws error', async () => {
-        let config = new ioc.Config()
-
-        await assert.rejects(
-            async () => {
-                let container = await ioc.newContainer(config, {
-                    'service_g': ServiceG
-                })
-
-                await container.close()
-            },
-            {
-                name: 'Error',
-                message: 'error from _close()'
-            }
-        )
     })
 })
