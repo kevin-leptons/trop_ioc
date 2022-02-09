@@ -1,10 +1,10 @@
 'use strict'
 
+/* eslint-disable max-len */
 /* eslint-disable max-lines-per-function */
 
 const assert = require('assert')
 const {Container} = require('../lib')
-const {Config} = require('./_lib')
 
 /**
  * Invalid service because it's `close()` is not a function.
@@ -46,22 +46,24 @@ class ServiceB {
     }
 }
 
-describe('Container.close on Service.dependencies', () => {
+describe('Container.close, throws error on Service.close', () => {
     it('Service.close is not a function, throws error', async() => {
-        let config = Config.open()
         await assert.rejects(
             async() => {
-                await Container.open(config, [ServiceA])
+                await Container.open({
+                    serviceTypes: [ServiceA]
+                })
             },
             {
                 constructor: TypeError,
-                message: 'expect a function: ServiceA.close'
+                message: 'config.serviceTypes: ServiceA.close: expect a function'
             }
         )
     })
     it('Service.close throws error, throws error', async() => {
-        let config = Config.open()
-        let container = await Container.open(config, [ServiceB])
+        let container = await Container.open({
+            serviceTypes: [ServiceB]
+        })
         await assert.rejects(
             async() => {
                 await container.close()

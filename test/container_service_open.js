@@ -5,7 +5,6 @@
 
 const assert = require('assert')
 const {Container} = require('../lib')
-const {Config} = require('./_lib')
 
 /**
  * Invalid service because it's `open()` is not a function.
@@ -64,36 +63,39 @@ class ServiceC {
     close() {}
 }
 
-describe('Container.open on Service.dependencies', () => {
+describe('Container.open, throws error on Service.open', () => {
     it('Service.open is not a function, throws error', async() => {
-        let config = Config.open()
         await assert.rejects(
             async() => {
-                await Container.open(config, [ServiceA])
+                await Container.open({
+                    serviceTypes: [ServiceA]
+                })
             },
             {
                 constructor: TypeError,
-                message: 'expect a function: ServiceA.open'
+                message: 'config.serviceTypes: ServiceA.open: expect a function'
             }
         )
     })
     it('Service.open does not return instance of service, throws error', async() => {
-        let config = Config.open()
         await assert.rejects(
             async() => {
-                await Container.open(config, [ServiceB])
+                await Container.open({
+                    serviceTypes: [ServiceB]
+                })
             },
             {
                 constructor: TypeError,
-                message: 'expect an instance service: ServiceB.open'
+                message: 'ServiceB.open return: expect a service instance'
             }
         )
     })
     it('Service.open throws error, throws error', async() => {
-        let config = Config.open()
         await assert.rejects(
             async() => {
-                await Container.open(config, [ServiceC])
+                await Container.open({
+                    serviceTypes: [ServiceC]
+                })
             },
             {
                 constructor: Error,

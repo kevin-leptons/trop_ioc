@@ -1,8 +1,8 @@
 'use strict'
 
-class Config {
+class Configuration {
     static get identity() {
-        return 'config'
+        return 'configuration'
     }
 
     static get dependencies() {
@@ -15,7 +15,7 @@ class Config {
     }
 
     static open(balanceA = 1, balanceB = 2) {
-        return new Config(balanceA, balanceB)
+        return new Configuration(balanceA, balanceB)
     }
 
     close() {}
@@ -30,5 +30,5 @@ class Config {
 }
 
 module.exports = {
-    Config
+    Configuration
 }

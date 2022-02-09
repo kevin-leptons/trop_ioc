@@ -5,7 +5,6 @@
 
 const assert = require('assert')
 const {Container} = require('../lib')
-const {Config} = require('./_lib')
 
 /**
  * Invalid service because it's dependencies is not an array.
@@ -59,52 +58,86 @@ class ServiceD {
     }
 }
 
+/**
+ * Invalid service because it's dependencies is conflict.
+ */
+class ServiceE {
+    static get identity() {
+        return 'service.e'
+    }
+
+    static get dependencies() {
+        return ['service.x', 'service.x']
+    }
+
+    static open() {}
+
+    close() {}
+}
+
 describe('Container.open on Service.dependencies', () => {
     it('Service.dependencies is not an array, throws error', async() => {
-        let config = Config.open()
         await assert.rejects(
             async() => {
-                await Container.open(config, [ServiceA])
+                await Container.open({
+                    serviceTypes: [ServiceA]
+                })
             },
             {
                 constructor: TypeError,
-                message: 'expect a string array: ServiceA.dependencies'
+                message: 'config.serviceTypes: expect a string array: ServiceA.dependencies'
             }
         )
     })
     it('Service.dependencies has non-string item, throws error', async() => {
-        let config = Config.open()
         await assert.rejects(
             async() => {
-                await Container.open(config, [ServiceB])
+                await Container.open({
+                    serviceTypes: [ServiceB]
+                })
             },
             {
                 constructor: TypeError,
-                message: 'expect a string array: ServiceB.dependencies'
+                message: 'config.serviceTypes: expect a string array: ServiceB.dependencies'
             }
         )
     })
     it('Service.dependencies has invalid symbols item, throws error', async() => {
-        let config = Config.open()
         await assert.rejects(
             async() => {
-                await Container.open(config, [ServiceC])
+                await Container.open({
+                    serviceTypes: [ServiceC]
+                })
             },
             {
                 constructor: TypeError,
-                message: 'expect a string array: ServiceC.dependencies'
+                message: 'config.serviceTypes: expect a string array: ServiceC.dependencies'
             }
         )
     })
     it('Service.dependencies has empty item, throws error', async() => {
-        let config = Config.open()
         await assert.rejects(
             async() => {
-                await Container.open(config, [ServiceD])
+                await Container.open({
+                    serviceTypes: [ServiceD]
+                })
             },
             {
                 constructor: TypeError,
-                message: 'expect a string array: ServiceD.dependencies'
+                message: 'config.serviceTypes: expect a string array: ServiceD.dependencies'
+            }
+        )
+    })
+    it('Service.dependencies is conflict, throws error', async() => {
+        await assert.rejects(
+            async() => {
+                await Container.open({
+                    serviceTypes: [ServiceE]
+                })
+            },
+            {
+                constructor: TypeError,
+                message: 'config.serviceTypes: ServiceE.dependencies: conflict service.x'
             }
         )
     })

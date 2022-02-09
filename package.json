@@ -9,9 +9,9 @@
   "scripts": {
     "test": "mocha",
     "standardize": "palmito -i '**/tmp/**' -i '**/*.tgz' -i '**/docs/**' -i '**/doc/**'",
-    "doc": "jsdoc --destination docs --configure doc/jsdoc.json lib doc/jsdoc_home.md",
+    "doc": "rm -rf docs && jsdoc --destination docs --configure doc/jsdoc.json lib doc/jsdoc_home.md",
     "doc-server": "http-server docs",
-    "doc-clean": "rm -rf docs"
+    "example": "node doc/example.js"
   },
   "repository": {
     "type": "git",
@@ -29,10 +29,13 @@
   },
   "homepage": "https://github.com/kevin-leptons/trop_ioc#readme",
   "devDependencies": {
-    "docdash": "^1.2.0",
-    "http-server": "^14.1.0",
-    "jsdoc": "^3.6.10",
+    "docdash": "1.2.0",
+    "http-server": "14.1.0",
+    "jsdoc": "3.6.10",
     "mocha": "8.3.1",
     "palmito": "0.4.0"
+  },
+  "dependencies": {
+    "minitype": "0.5.1"
   }
 }

@@ -1,10 +1,10 @@
 'use strict'
 
+/* eslint-disable max-len */
 /* eslint-disable max-lines-per-function */
 
 const assert = require('assert')
 const {Container} = require('../lib')
-const {Config} = require('./_lib')
 
 /**
  * Invalid service because it's identity is not a string.
@@ -35,38 +35,41 @@ class ServiceC {
 
 describe('Container.open on Service.identity', () => {
     it('Service.identity is not a string, throws error', async() => {
-        let config = Config.open()
         await assert.rejects(
             async() => {
-                await Container.open(config, [ServiceA])
+                await Container.open({
+                    serviceTypes: [ServiceA]
+                })
             },
             {
                 constructor: TypeError,
-                message: 'expect a string pattern [a-z0-9.]+: ServiceA.identity'
+                message: 'config.serviceTypes: ServiceA.identity: expect a string pattern [a-z0-9.]+'
             }
         )
     })
     it('Service.identity has invalid symbols, throws error', async() => {
-        let config = Config.open()
         await assert.rejects(
             async() => {
-                await Container.open(config, [ServiceB])
+                await Container.open({
+                    serviceTypes: [ServiceB]
+                })
             },
             {
                 constructor: TypeError,
-                message: 'expect a string pattern [a-z0-9.]+: ServiceB.identity'
+                message:  'config.serviceTypes: ServiceB.identity: expect a string pattern [a-z0-9.]+'
             }
         )
     })
     it('Service.identity is empty string, throws error', async() => {
-        let config = Config.open()
         await assert.rejects(
             async() => {
-                await Container.open(config, [ServiceC])
+                await Container.open({
+                    serviceTypes: [ServiceC]
+                })
             },
             {
                 constructor: TypeError,
-                message: 'expect a string pattern [a-z0-9.]+: ServiceC.identity'
+                message: 'config.serviceTypes: ServiceC.identity: expect a string pattern [a-z0-9.]+'
             }
         )
     })

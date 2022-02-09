@@ -1,13 +1,14 @@
 'use strict'
 
+const assert = require('assert')
 const {Container} = require('@trop/ioc')
 
-class Config {
+class Configuration {
     /**
      * @type {string}
      */
     static get identity() {
-        return 'config'
+        return 'configuration'
     }
 
     /**
@@ -33,7 +34,7 @@ class Config {
      * @param {number} balanceB
      */
     static open(balanceA = 1, balanceB = 2) {
-        return new Config(balanceA, balanceB)
+        return new Configuration(balanceA, balanceB)
     }
 
     close() {}
@@ -59,7 +60,7 @@ class ServiceA {
     }
 
     static get dependencies() {
-        return ['config']
+        return ['configuration']
     }
 
     /**
@@ -96,7 +97,7 @@ class ServiceB {
     }
 
     static get dependencies() {
-        return ['config', 'service.a']
+        return ['configuration', 'service.a']
     }
 
     /**
@@ -133,14 +134,15 @@ class ServiceB {
 }
 
 async function main() {
-    let config = new Config(0, 15)
+    let config = Configuration.open(3, 15)
     let container = await Container.open(config, [
         ServiceA, ServiceB
     ])
     let serviceB = container.get('service.b')
     serviceB.increaseBalance()
-    console.log(`balance: ${serviceB.balance}`)
+    assert.strictEqual(serviceB.balance, 19)
     await container.close()
+    console.log('ok')
 }
 
 main().catch(console.error)
