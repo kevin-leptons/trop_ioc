@@ -4,7 +4,35 @@
 
 const assert = require('assert')
 const {Container} = require('../lib')
-const {Configuration} = require('./_lib')
+
+class Configuration {
+    static get identity() {
+        return 'configuration'
+    }
+
+    static get dependencies() {
+        return []
+    }
+
+    constructor(balanceA, balanceB) {
+        this._balanceA = balanceA
+        this._balanceB = balanceB
+    }
+
+    static open(balanceA = 1, balanceB = 2) {
+        return new Configuration(balanceA, balanceB)
+    }
+
+    close() {}
+
+    get balanceA() {
+        return this._balanceA
+    }
+
+    get balanceB() {
+        return this._balanceB
+    }
+}
 
 class ServiceA {
     static get identity() {
@@ -84,7 +112,7 @@ class ServiceB {
 
 class ServiceC {
     static get identity() {
-        return 'service.a'
+        return 'service.c'
     }
 
     static get dependencies() {
@@ -98,44 +126,23 @@ class ServiceC {
     close() {}
 }
 
-describe('Container.open', () => {
-    it('initialize, run and dispose', async() => {
+describe('Container life cycle', () => {
+    it('initialize, get, set, rund and dispose', async() => {
         let container = await Container.open({
             configService: Configuration.open(10, 15),
             serviceTypes: [ServiceA, ServiceB]
         })
-        let actualResult = container.get('service.b').increasebalance()
+        assert.strictEqual(container instanceof Container, true)
+        let serviceC = ServiceC.open()
+        container.set(serviceC)
+        let gotServiceC = container.get('service.c')
+        assert.deepStrictEqual(gotServiceC, serviceC)
+        let serviceB = container.get('service.b')
+        assert.strictEqual(serviceB instanceof ServiceB, true)
+        let actualResult = serviceB.increasebalance()
         let expectedResult = 27
         assert.strictEqual(actualResult, expectedResult)
         await container.close()
         assert.strictEqual(container._serviceMap.size, 0)
-    })
-    it('conflict service types, throws error', async() => {
-        await assert.rejects(
-            async() => {
-                await Container.open({
-                    configService: Configuration.open(10, 15),
-                    serviceTypes: [ServiceA, ServiceA]
-                })
-            },
-            {
-                constructor: TypeError,
-                message: 'config.serviceTypes: conflict ServiceA and ServiceA'
-            }
-        )
-    })
-    it('conflict service identities, throws error', async() => {
-        await assert.rejects(
-            async() => {
-                await Container.open({
-                    configService: Configuration.open(10, 15),
-                    serviceTypes: [ServiceA, ServiceC]
-                })
-            },
-            {
-                constructor: TypeError,
-                message: 'config.serviceTypes: conflict ServiceA and ServiceC'
-            }
-        )
     })
 })

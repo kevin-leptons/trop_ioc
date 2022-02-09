@@ -27,7 +27,7 @@ class ServiceA {
 }
 
 /**
- * Invalid service because of identity is an empty string.
+ * Invalid service because of attribute `identity` is an empty string.
  */
 class ServiceB {
     static get identity() {
@@ -50,7 +50,7 @@ class ServiceB {
 }
 
 /**
- * Invalid service because of open is not a function.
+ * Invalid service because of attribute `open` is not a function.
  */
 class ServiceC {
     static get identity() {
@@ -73,7 +73,7 @@ class ServiceC {
 }
 
 /**
- * Invalid service because of close is not a function.
+ * Invalid service because of attribute `close` is not a function.
  */
 class ServiceD {
     static get identity() {
@@ -135,7 +135,7 @@ describe('Container.set', () => {
             },
             {
                 constructor: TypeError,
-                message: 'service: ServiceB.identity: expect a string pattern [a-z0-9.]+'
+                message: 'service: ServiceB.identity: expect string pattern [a-z0-9.]+'
             }
         )
     })
@@ -148,7 +148,7 @@ describe('Container.set', () => {
             },
             {
                 constructor: TypeError,
-                message: 'service: ServiceC.open: expect a function'
+                message: 'service: ServiceC.open: expect type function'
             }
         )
     })
@@ -161,7 +161,7 @@ describe('Container.set', () => {
             },
             {
                 constructor: TypeError,
-                message: 'service: ServiceD.close: expect a function'
+                message: 'service: ServiceD.close: expect type function'
             }
         )
     })

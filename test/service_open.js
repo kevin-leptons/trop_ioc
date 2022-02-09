@@ -7,7 +7,7 @@ const assert = require('assert')
 const {Container} = require('../lib')
 
 /**
- * Invalid service because it's `open()` is not a function.
+ * Invalid because of attribute `open` is not a function.
  */
 class ServiceA {
     static get identity() {
@@ -26,7 +26,7 @@ class ServiceA {
 }
 
 /**
- * Invalid service because it's `open()` does not return service instance.
+ * Invalid because of `open()` does not return service instance.
  */
 class ServiceB {
     static get identity() {
@@ -45,7 +45,7 @@ class ServiceB {
 }
 
 /**
- * Invalid service because it's `open()` throws error.
+ * Invalid because of `open()` throws error.
  */
 class ServiceC {
     static get identity() {
@@ -63,6 +63,21 @@ class ServiceC {
     close() {}
 }
 
+/**
+ * Invalid because of missing attribute `open`.
+ */
+class ServiceD {
+    static get identity() {
+        return 'service.d'
+    }
+
+    static get dependencies() {
+        return []
+    }
+
+    close() {}
+}
+
 describe('Container.open, throws error on Service.open', () => {
     it('Service.open is not a function, throws error', async() => {
         await assert.rejects(
@@ -73,7 +88,7 @@ describe('Container.open, throws error on Service.open', () => {
             },
             {
                 constructor: TypeError,
-                message: 'config.serviceTypes: ServiceA.open: expect a function'
+                message: 'config.serviceTypes: ServiceA.open: expect type function'
             }
         )
     })
@@ -100,6 +115,19 @@ describe('Container.open, throws error on Service.open', () => {
             {
                 constructor: Error,
                 message: 'oops!'
+            }
+        )
+    })
+    it('Service.open is missing, throws error', async() => {
+        await assert.rejects(
+            async() => {
+                await Container.open({
+                    serviceTypes: [ServiceD]
+                })
+            },
+            {
+                constructor: TypeError,
+                message: 'config.serviceTypes: ServiceD.open: missing'
             }
         )
     })

@@ -7,7 +7,7 @@ const assert = require('assert')
 const {Container} = require('../lib')
 
 /**
- * Invalid service because it's identity is not a string.
+ * Invalid because of attribute `identity` is not a string.
  */
 class ServiceA {
     static get identity() {
@@ -16,7 +16,7 @@ class ServiceA {
 }
 
 /**
- * Invalid service because it's identity has invalid symbols.
+ * Invalid because of attribute `identity` has invalid symbols.
  */
 class ServiceB {
     static get identity() {
@@ -25,7 +25,7 @@ class ServiceB {
 }
 
 /**
- * Invalid service because it's identity is an empty string.
+ * Invalid because of attribute `identity` is an empty string.
  */
 class ServiceC {
     static get identity() {
@@ -43,7 +43,7 @@ describe('Container.open on Service.identity', () => {
             },
             {
                 constructor: TypeError,
-                message: 'config.serviceTypes: ServiceA.identity: expect a string pattern [a-z0-9.]+'
+                message: 'config.serviceTypes: ServiceA.identity: expect type string'
             }
         )
     })
@@ -56,7 +56,7 @@ describe('Container.open on Service.identity', () => {
             },
             {
                 constructor: TypeError,
-                message:  'config.serviceTypes: ServiceB.identity: expect a string pattern [a-z0-9.]+'
+                message: 'config.serviceTypes: ServiceB.identity: expect string pattern [a-z0-9.]+'
             }
         )
     })
@@ -69,7 +69,7 @@ describe('Container.open on Service.identity', () => {
             },
             {
                 constructor: TypeError,
-                message: 'config.serviceTypes: ServiceC.identity: expect a string pattern [a-z0-9.]+'
+                message: 'config.serviceTypes: ServiceC.identity: expect string pattern [a-z0-9.]+'
             }
         )
     })

@@ -7,7 +7,7 @@ const assert = require('assert')
 const {Container} = require('../lib')
 
 /**
- * Invalid service because it's dependencies is not an array.
+ * Invalid because of attribute `dependencies` is not an array.
  */
 class ServiceA {
     static get identity() {
@@ -20,7 +20,7 @@ class ServiceA {
 }
 
 /**
- * Invalid service because it's dependencies has non-string item.
+ * Invalid because of attribute `dependencies` has non-string item.
  */
 class ServiceB {
     static get identity() {
@@ -33,7 +33,7 @@ class ServiceB {
 }
 
 /**
- * Invalid service because it's dependencies has invalid symbols item.
+ * Invalid because of attribute `dependencies` has invalid symbols item.
  */
 class ServiceC {
     static get identity() {
@@ -46,7 +46,7 @@ class ServiceC {
 }
 
 /**
- * Invalid service because it's dependencies has empty item.
+ * Invalid because of attribute `dependencies` has empty item.
  */
 class ServiceD {
     static get identity() {
@@ -59,7 +59,7 @@ class ServiceD {
 }
 
 /**
- * Invalid service because it's dependencies is conflict.
+ * Invalid because of attribute `dependencies` is conflict.
  */
 class ServiceE {
     static get identity() {
@@ -85,7 +85,7 @@ describe('Container.open on Service.dependencies', () => {
             },
             {
                 constructor: TypeError,
-                message: 'config.serviceTypes: expect a string array: ServiceA.dependencies'
+                message: 'config.serviceTypes: ServiceA.dependencies: expect Array'
             }
         )
     })
@@ -98,7 +98,7 @@ describe('Container.open on Service.dependencies', () => {
             },
             {
                 constructor: TypeError,
-                message: 'config.serviceTypes: expect a string array: ServiceB.dependencies'
+                message: 'config.serviceTypes: ServiceB.dependencies[0]: expect type string'
             }
         )
     })
@@ -111,7 +111,7 @@ describe('Container.open on Service.dependencies', () => {
             },
             {
                 constructor: TypeError,
-                message: 'config.serviceTypes: expect a string array: ServiceC.dependencies'
+                message: 'config.serviceTypes: ServiceC.dependencies[0]: expect string pattern [a-z0-9.]+'
             }
         )
     })
@@ -124,7 +124,7 @@ describe('Container.open on Service.dependencies', () => {
             },
             {
                 constructor: TypeError,
-                message: 'config.serviceTypes: expect a string array: ServiceD.dependencies'
+                message: 'config.serviceTypes: ServiceD.dependencies[0]: expect string pattern [a-z0-9.]+'
             }
         )
     })

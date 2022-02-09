@@ -134,10 +134,10 @@ class ServiceB {
 }
 
 async function main() {
-    let config = Configuration.open(3, 15)
-    let container = await Container.open(config, [
-        ServiceA, ServiceB
-    ])
+    let container = await Container.open({
+        configService: Configuration.open(3, 15),
+        serviceTypes: [ServiceA, ServiceB]
+    })
     let serviceB = container.get('service.b')
     serviceB.increaseBalance()
     assert.strictEqual(serviceB.balance, 19)

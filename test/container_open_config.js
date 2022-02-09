@@ -6,6 +6,9 @@
 const assert = require('assert')
 const {Container} = require('../lib')
 
+/**
+ * Invalid because of attribute `identity` is not `configuration`.
+ */
 class ConfigA {
     static get identity() {
         return 'config.a'
@@ -22,9 +25,12 @@ class ConfigA {
     close() {}
 }
 
+/**
+ * Invalid because of attribute `close` is not a function.
+ */
 class ConfigB {
     static get identity() {
-        return 'config.a'
+        return 'configuration'
     }
 
     static get dependencies() {
@@ -40,6 +46,9 @@ class ConfigB {
     }
 }
 
+/**
+ * Invalid because of attribute `dependencies` is not empty.
+ */
 class ConfigC {
     static get identity() {
         return 'configuration'
@@ -56,6 +65,9 @@ class ConfigC {
     close() {}
 }
 
+/**
+ * Invalid because of attribute `open` is not a function.
+ */
 class ConfigD {
     static get identity() {
         return 'configuration'
@@ -103,7 +115,7 @@ describe('Container.open throws error on configService', () => {
             },
             {
                 constructor: TypeError,
-                message: 'config.configService: ConfigD.open: expect a function'
+                message: 'config.configService: ConfigD.open: expect type function'
             }
         )
     })
@@ -115,7 +127,7 @@ describe('Container.open throws error on configService', () => {
             },
             {
                 constructor: TypeError,
-                message: 'config.configService: ConfigB.close: expect a function'
+                message: 'config.configService: ConfigB.close: expect type function'
             }
         )
     })

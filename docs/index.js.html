@@ -46,7 +46,9 @@
         <article>
             <pre class="prettyprint source linenums"><code>'use strict'
 
-const {Result, validateObject, validateInstance} = require('minitype')
+const {
+    Result, validateObject, validateInstance
+} = require('minitype')
 
 /**
  * A string matches pattern `[a-z0-9.]+`. For example `service.a`, `service01`.
@@ -161,12 +163,16 @@ class Container {
      *
      * @param {ServiceIdentity} identity
      * @return {Service}
-     * @throws {Error}
+     * @throws {TypeError | Error}
      */
     get(identity) {
+        let r1 = Container._validateIdentity(identity)
+        if (r1.error) {
+            throw new TypeError(`identity: ${r1.error.message}`)
+        }
         let service = this._serviceMap.get(identity)
         if (!service) {
-            throw Error(`service not found: ${identity}`)
+            throw new Error(`identity: ${identity}: not found`)
         }
         return service
     }
@@ -243,17 +249,21 @@ class Container {
      * @return {Result&lt;TypeError, undefined>}
      */
     static _validateServiceType(ServiceType) {
-        let r1 = Container._validateServiceIdentity(ServiceType)
+        let r1 = validateInstance(ServiceType, 'function')
         if (r1.error) {
             return r1
         }
-        let r2 = Container._validateServiceDependency(ServiceType)
+        let r2 = Container._validateServiceIdentity(ServiceType)
         if (r2.error) {
             return r2
         }
-        let r3 = Container._validateServiceOpen(ServiceType)
+        let r3 = Container._validateServiceDependency(ServiceType)
         if (r3.error) {
             return r3
+        }
+        let r4 = Container._validateServiceOpen(ServiceType)
+        if (r4.error) {
+            return r4
         }
         return Container._validateServiceClose(ServiceType)
     }
@@ -377,14 +387,15 @@ class Container {
      * @return {Result&lt;TypeError, undefined>}
      */
     static _validateServiceIdentity(ServiceType) {
-        if (
-            !Container._hasProperty(ServiceType, 'identity') ||
-            typeof(ServiceType.identity) !== 'string' ||
-            /^[a-z0-9.]+$/.test(ServiceType.identity) === false
-        ) {
-            let message = `${ServiceType.name}.identity: ` +
-                'expect a string pattern [a-z0-9.]+'
-            return Result.typeError(message)
+        if (!Container._hasProperty(ServiceType, 'identity')) {
+            return Result.typeError(`${ServiceType.name}.identity: missing`)
+        }
+        let {identity} = ServiceType
+        let r1 = Container._validateIdentity(identity)
+        if (r1.error) {
+            return Result.typeError(
+                `${ServiceType.name}.identity: ${r1.error.message}`
+            )
         }
         return Result.ok()
     }
@@ -395,19 +406,24 @@ class Container {
      * @return {Result&lt;TypeError, undefined>}
      */
     static _validateServiceDependency(ServiceType) {
-        if (
-            !Container._hasProperty(ServiceType, 'dependencies') ||
-            !Array.isArray(ServiceType.dependencies)
-        ) {
+        if (!Container._hasProperty(ServiceType, 'dependencies')) {
             return Result.typeError(
-                `expect a string array: ${ServiceType.name}.dependencies`
+                `${ServiceType.name}.dependencies: missing`
             )
         }
-        for (let identity of ServiceType.dependencies) {
-            if (!Container._isIdentity(identity)) {
-                return Result.typeError(
-                    `expect a string array: ${ServiceType.name}.dependencies`
-                )
+        let {dependencies} = ServiceType
+        let r1 = validateInstance(dependencies, Array)
+        if (r1.error) {
+            return Result.typeError(
+                `${ServiceType.name}.dependencies: ${r1.error.message}`
+            )
+        }
+        for (let [i, identity] of ServiceType.dependencies.entries()) {
+            let r1 = Container._validateIdentity(identity)
+            if (r1.error) {
+                let message = `${ServiceType.name}.dependencies[${i}]: ` +
+                    r1.error.message
+                return Result.typeError(message)
             }
         }
         return Container._validateConflictDependency(ServiceType)
@@ -437,12 +453,13 @@ class Container {
      * @return {Result&lt;TypeError, undefined>}
      */
     static _validateServiceOpen(ServiceType) {
-        if (
-            !Container._hasProperty(ServiceType, 'open') ||
-            typeof(ServiceType.open) !== 'function'
-        ) {
+        if (!Container._hasProperty(ServiceType, 'open')) {
+            return Result.typeError(`${ServiceType.name}.open: missing`)
+        }
+        let r1 = validateInstance(ServiceType.open, 'function')
+        if (r1.error) {
             return Result.typeError(
-                `${ServiceType.name}.open: expect a function`
+                `${ServiceType.name}.open: ${r1.error.message}`
             )
         }
         return Result.ok()
@@ -454,13 +471,14 @@ class Container {
      * @return {Result&lt;TypeError, undefined>}
      */
     static _validateServiceClose(ServiceType) {
-        let prototype = ServiceType.prototype
-        if (
-            !Container._hasProperty(prototype, 'close') ||
-            typeof(prototype.close) !== 'function'
-        ) {
+        let {prototype} = ServiceType
+        if (!Container._hasProperty(prototype, 'close')) {
+            return Result.typeError(`${ServiceType.name}.close: missing`)
+        }
+        let r1 = validateInstance(prototype.close, 'function')
+        if (r1.error) {
             return Result.typeError(
-                `${ServiceType.name}.close: expect a function`
+                `${ServiceType.name}.close: ${r1.error.message}`
             )
         }
         return Result.ok()
@@ -479,11 +497,17 @@ class Container {
     /**
      * @private
      * @param {string} value
-     * @return {boolean}
+     * @return {Result&lt;TypeError, undefined>}
      */
-    static _isIdentity(value) {
-        return typeof(value) === 'string' &amp;&amp;
-            /^[a-z0-9.]+$/.test(value) === true
+    static _validateIdentity(value) {
+        let r1 = validateInstance(value, 'string')
+        if (r1.error) {
+            return r1
+        }
+        if (/^[a-z0-9.]+$/.test(value) === false) {
+            return Result.typeError('expect string pattern [a-z0-9.]+')
+        }
+        return Result.ok()
     }
 }
 
@@ -504,7 +528,7 @@ module.exports = {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Wed Feb 09 2022 00:30:36 GMT-0800 (Pacific Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Wed Feb 09 2022 02:04:52 GMT-0800 (Pacific Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
